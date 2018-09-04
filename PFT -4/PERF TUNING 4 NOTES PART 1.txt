@@ -1,0 +1,110 @@
+AGENDA
+
+
+	UNDERSTANDING INDEXES
+
+	UNDERSTANDING FRAGMENTATION
+
+	AUDITS @ FRAGMENTATION
+
+	INDEX REBUILDS
+	INDEX REORGANIZE
+
+	BEST PRACTICES FOR INDEX IMPLEMENTATION
+--------------------------------------------------------------------
+
+INDEXES ARE ADDITIONAL B TREE STRUCTURES (BINARY TREE STRUCTURES)  
+		USED TO CONTAIN "REFERENCE" INFORMATION [POINTER INFORMATION] 
+		FOR EASY ACCESS TO ACTUAL DATA PAGES. 
+
+
+B TREE STRUCTURE CONTAINS:
+		1. ROOT				: START LOCATION
+
+		2. INTERMEDIATE PAGES 
+
+		3. LEAF PAGES
+
+
+** WHENEVER WE DEFINE INDEX ON A TABLE / VIEW THE STORAGE ENGINE GENERATES
+THE REQUIRED B TREE FOR EASY DATA ACCESS. 
+
+
+WE CAN AUDIT THE ROOT INFORMATION USING THE BELOW COMMAND:
+	DBCC CHECKALLOC()   : APPLIES TO ENTIRE DATABASE
+				
+	FROM THE OUTPUT WE NEED TO MANUALLY CHECK FOR THE TABLE INFORMATION
+
+----
+FRAGMENTATION:
+	A PHENOMENA OF EMPTY SPACES (BLANK SPACES) WITHIN THE INDEX PAGES 
+	AND DATA PAGES.
+
+	THIS MAY BE CAUSED DUE TO FREQUENT DMLs OPERATION AND BULK OPERATIONS.
+	
+	IMPACT:
+	IF A INDEX IS FRAGMENTED THEN INDEX SELECTIVITY / INDEX USAGE REDUCES.
+
+	IF A TABLE IS FRAGMENTED THEN TABLE QUEERY PERFORMANCE WOULD BE DEGRADED.
+
+
+/*
+FOR EASE OF DATA ALLOCTION EVERY METADATA PAGE CONTAINS:
+
+		GAM		:  	GLOBAL ALLOCATION MAP			0		1
+
+		SGAM		: 	SHARED GLOBAL ALLOCATION MAP		0		1
+
+BOTH GAM & SGAM ARE USED FOR STORAGE ALLOCATION INFORMATION. USING bitmap.
+	
+The bits in the GAM bitmap have the following semantics:
+			bit = 1: the extent is available for allocation 
+			bit = 0: the extent is already allocated for use
+
+The bits in the SGAM bitmap have the following semantics:
+
+			bit = 1: the extent is a mixed extent and has at least one unallocated page available for use
+			bit = 0: the extent is either dedicated or is a mixed extent with no unallocated pages
+
+------------------------
+bytemap	: A SEQUENCE OF BITS USED TO SPECIFY THE ALLOCATION INFORMATION. THIS IS SPECIFIED BY PFS : PAGE FREE SPACE 
+*/
+
+
+PFS page tracks much more than GAM & SGAM. Every database file is split (conceptually) into PFS intervals. A PFS interval is 8088 pages, or about 64MB. A PFS page doesn’t have a bitmap – it has a byte-map, with one byte for each page in the PFS interval (not including itself).
+ 
+The bits in each byte are encoded to mean the following:
+			bits 0-2: how much free space is on the page
+			0x00 is empty
+			0x01 is 1 to 50% full
+			0x02 is 51 to 80% full
+			0x03 is 81 to 95% full
+			0x04 is 96 to 100% full
+
+			bit 3 (0x08): is there one or more ghost records on the page?
+			bit 4 (0x10): is the page an IAM page?
+			bit 5 (0x20): is the page a mixed-page?
+			bit 6 (0x40): is the page allocated?
+
+
+HOW TO CHECK THE ABOVE bitmap AND bytemap?
+		USING DBCC PAGE(DB_ID, FILE_ID, PAGE_ID)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
