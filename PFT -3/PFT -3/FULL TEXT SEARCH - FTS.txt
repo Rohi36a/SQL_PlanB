@@ -1,0 +1,84 @@
+﻿NOTEPAD: CONSOLAS; BOLD; 12
+============================
+
+FULL TEXT SEARCH (FTS):
+THIS IS A MECHANISM TO DEFINE ADDITIONAL INDEXES TO ENHANCE THE PERFORMANCE OF CHARACTER BASED SEARCH.
+Full-text search refers to a functionality in SQL Server that supports Full-Text Queries against character-based data.
+
+To support full-text queries, full-text indexes must be implemented on the columns referenced in the query. 
+
+BASIC VOCABULARY FOR FTS:
+-------------------------
+Simple terms:	that is, one or more specific words or phrases.
+■ Prefix terms, which are terms the words or phrases begin with.
+■ Generation terms, meaning inflectional forms of words.
+■ Proximity terms, or words or phrases close to another word or phrase.
+■ Thesaurus terms, or synonyms of a word.
+■ Weighted terms, which are words or phrases that use values with your custom weight.
+■ Statistical semantic search, or key phrases in a document.
+■ Similar documents, where similarity is defined by semantic key phrases
+
+SQL Server finds synonyms in thesaurus files.  
+ 
+Word breakers and stemmers perform linguistic analysis on all full-text data. 
+
+> Word breaker identifies individual words (or tokens). Tokens are inserted in a full-text index in compressed format. 
+> The stemmer generates inflectional forms of a word based on the rules of a language.
+
+
+-----------------------
+FTS ARCHITECTURE:
+The SQL Server process uses the following components for full-text search:
+
+	User tables:		These tables contain the data to be full-text indexed.
+
+	Full-text Gatherer: 	The full-text gatherer works with the full-text crawl threads. It is responsible for 						scheduling and driving the population of full-text indexes, and also for monitoring 						full-text catalogs.
+
+	Thesaurus files:	These files contain synonyms of search terms. 
+
+	Stoplist objects:	Stoplist objects contain a list of common words that are not useful for the search. 
+
+	SQL Server query processor: 	The query processor compiles and executes SQL queries. If a SQL query includes a 					full-text search query, the query is sent to the Full-Text Engine, both during 							compilation and during execution. The query result is matched against full-text 						index.
+
+	Full-Text Engine:	The Full-Text Engine in SQL Server is fully integrated with the query processor. The 						Full-Text Engine compiles and executes full-text queries. As part of query execution, 						the Full-Text Engine might receive input from the thesaurus and stoplist.
+
+	Index Writer (indexer): The index writer builds the structure that is used to store the indexed tokens.
+
+	Filter Daemon Manager: 	The filter daemon manager is responsible for monitoring the status of the Full-Text 						Engine filter daemon host.
+
+
+HOW TO CONFIGURE FTS?
+	
+	STEP 1: START FULLTEXT SEARCH (FTS) SERVICE 
+	STEP 2: ENABLE FULLTEXT SEARCH ON THE REQUIRED DATABASE
+	STEP 3: CREATE A FULLTEXT CATALOG  : THIS IS A CONTAINER TO STORE FT INDEXES.
+	STEP 4: CREATE FULL TEXT INDEX ON THE BASE TABLE USING A UNIQUE INDEX. STORE THE FT INDEX INTO A CATALOG.
+	STEP 5: ADD ONE OR MORE REQUIRED CHARACTER COLUMNS ON WHICH WE NEED TO DEFINE THE FT INDEX
+			XML, BLOB, IMAGE, VARCHAR(MAX) DATA ARE A PREFERRED TYPES
+
+	STEP 6: SCHEDULE / MANUALLY POPULATE / FILL THE ABOVE FT INDEX WITH THE REQUIRED CHARACTER DATA.
+
+		TYPES OF POPULATIONS:
+			a. FULL POPULATION		: COMPLETE COLUMN DATA IS SENT FROM SOURCE TABLE TO FT INDEX.
+	
+			b. INCREMENATAL POPULATION 	: ONLY CHANGES SINCE LATEST FULL / INCREMENTAL POPULATION ARE  							  		  SENT FROM SOURCE TABLE TO FT INDEX.
+
+		CHANGE TRACKING : A PROPERTY USING WHICH WE CAN CONTORL THE FT POPULATION..
+
+
+
+	STEP 7: GET THE END USERS OF THE DATABASE TO USE FT QUERIES
+				
+				CONTAINS()				FREETEXT()
+				CONTAINSTABLE()				FREETEXTTABLE()
+
+==============================================
+
+SELECT * FROM sys.dm_fts_memory_buffers 
+SELECT * FROM sys.dm_fts_memory_pools 
+
+
+
+
+
+
